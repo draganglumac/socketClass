@@ -5,7 +5,7 @@ using namespace std;
 
 void workerOne(socketControl *sc)
 {
-  sc->transmission("127.0.0.1","8021","something"); //tested - OK
+  sc->transmission("127.0.0.1","8021","The sleeper has awakened"); //tested - OK
 }
 int main(int argc, char **argv) {
    

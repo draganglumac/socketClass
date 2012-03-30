@@ -47,6 +47,7 @@ private:
     struct sockaddr_in serv_addr,cli_addr;
     socklen_t clilen;
     struct hostent *server;
+    char transmissionBuffer[1024];  //byte array buffer size
     char buffer[1024];  //byte array buffer size
     bool listening;
     void mainLoop(void);

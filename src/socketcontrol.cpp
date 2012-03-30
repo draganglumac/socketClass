@@ -55,9 +55,9 @@ int socketControl::transmission(std::string host, std::string port,std::string p
     cout << "error whilst connecting" << endl;
     return 1;
   }
-  bzero(buffer,256);
-  strcpy(buffer,payload.c_str());
-  n = write(sendfd,buffer,strlen(payload.c_str()));
+  bzero(transmissionBuffer,256);
+  strcpy(transmissionBuffer,payload.c_str());
+  n = write(sendfd,transmissionBuffer,strlen(payload.c_str()));
   close(sendfd);
   return 0;
 }
@@ -71,7 +71,7 @@ void socketControl::mainLoop(void )
     newsockfd = accept(listenfd,(struct sockaddr *) &cli_addr,&clilen);
     if (newsockfd < 0)
             cout << "ERROR on accept" << endl;
-    bzero(buffer,256);
+    bzero(buffer,1024);
     n = read(newsockfd,buffer,255); // <- Reading into the buffer
     if (n < 0)
     {
