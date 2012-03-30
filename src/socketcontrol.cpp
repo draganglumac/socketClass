@@ -78,7 +78,7 @@ void socketControl::mainLoop(void )
       cout << "ERROR reading from socket" << endl;   
     };
       
-    cout <<"Message recieved via socket: %s\n" << endl;
+    cout <<"Message recieved via socket:" << buffer << endl;
   }
 }
 void socketControl::startListener(std::string port )

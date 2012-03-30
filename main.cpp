@@ -3,16 +3,17 @@
 #include "src/socketcontrol.h"
 using namespace std;
 
-void workerOne(void)
+void workerOne(socketControl *sc)
 {
-  
+  sc->transmission("127.0.0.1","8021","something"); //tested - OK
 }
 int main(int argc, char **argv) {
    
-    boost::thread *worker = new boost::thread(workerOne);
     socketControl *sc = new socketControl();
+    boost::thread *worker = new boost::thread(workerOne,sc);
     
-  //  sc->transmission("127.0.0.1","8021","something"); //tested - OK
-  //    sc->startListener("8021");
+    
+      sc->startListener("8021");
+      worker->join();
     return 0;
 }
