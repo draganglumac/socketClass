@@ -55,9 +55,19 @@ int socketControl::transmission(std::string host, std::string port,std::string p
     cout << "error whilst connecting" << endl;
     return 1;
   }
-  bzero(transmissionBuffer,256);
+  bzero(transmissionBuffer,1024);
+  //copy the payload into the buffer
   strcpy(transmissionBuffer,payload.c_str());
   n = write(sendfd,transmissionBuffer,strlen(payload.c_str()));
+  // lets listen for a callback 
+  //zero out the buffer
+  if (n < 0) 
+  {
+    cout << "ERROR reading from socket" << endl;
+  }
+  bzero(transmissionBuffer,1024); 
+  n = read(sendfd,transmissionBuffer,255);
+  cout << "Received reply :" << buffer << endl;
   close(sendfd);
   return 0;
 }
@@ -73,12 +83,16 @@ void socketControl::mainLoop(void )
             cout << "ERROR on accept" << endl;
     bzero(buffer,1024);
     n = read(newsockfd,buffer,255); // <- Reading into the buffer
+    cout <<"Message recieved via socket:" << buffer << endl; //squawk our message receieved
     if (n < 0)
     {
       cout << "ERROR reading from socket" << endl;   
     };
-      
-    cout <<"Message recieved via socket:" << buffer << endl;
+    // we received a message.. Lets tell them we got it
+    bzero(buffer,1024); //zero out the buffer
+    string reply = "The sleeper has awakened..";
+    strcpy(buffer,reply.c_str());
+    n = write(newsockfd,buffer,strlen(reply.c_str()));  
   }
 }
 void socketControl::startListener(std::string port )

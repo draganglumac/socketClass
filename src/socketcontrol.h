@@ -47,8 +47,8 @@ private:
     struct sockaddr_in serv_addr,cli_addr;
     socklen_t clilen;
     struct hostent *server;
-    char transmissionBuffer[1024];  //byte array buffer size
-    char buffer[1024];  //byte array buffer size
+    char transmissionBuffer[1024];  //buffer we'll push our protocal into 
+    char buffer[1024];  //buffer we'll receive any messaegs with
     bool listening;
     void mainLoop(void);
 };
