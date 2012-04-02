@@ -67,7 +67,7 @@ int socketControl::transmission(std::string host, std::string port,std::string p
   }
   bzero(transmissionBuffer,1024); 
   n = read(sendfd,transmissionBuffer,255);
-  cout << "Received reply :" << buffer << endl;
+  cout << "Received reply :" << transmissionBuffer << endl;
   close(sendfd);
   return 0;
 }
