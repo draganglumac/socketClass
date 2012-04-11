@@ -33,6 +33,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+
 class socketControl
 {
 
@@ -42,6 +43,7 @@ public:
     void startListener(std::string);
     void stopListener(void);
     int transmission(std::string,std::string,std::string);
+    void subscribeBroadcast(std::string);
 private:
     int listenfd,sendfd,newsockfd, portno, n;
     struct sockaddr_in serv_addr,cli_addr;
