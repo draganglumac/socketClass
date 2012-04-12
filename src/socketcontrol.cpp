@@ -185,7 +185,7 @@ void socketControl::subscribeBroadcast(string port)
 	close(sockfd);
   	 
 }
-void socketcontrol::sendBroadcast(string host, string port, string message)
+void socketControl::sendBroadcast(string host, string port, string message)
 {
     int sockfd;
     struct addrinfo hints, *servinfo, *p;
