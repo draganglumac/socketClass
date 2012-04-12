@@ -44,6 +44,7 @@ public:
     void stopListener(void);
     int transmission(std::string,std::string,std::string);
     void subscribeBroadcast(std::string);
+    void sendBroadcast(std::string,std::string,std::string);
 private:
     int listenfd,sendfd,newsockfd, portno, n;
     struct sockaddr_in serv_addr,cli_addr;
