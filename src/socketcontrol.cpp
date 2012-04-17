@@ -124,109 +124,92 @@ void socketControl::stopListener(void )
 {
   listening = false;
 }
-void socketControl::subscribeBroadcast(string port)
+#define HELLO_PORT 12345
+#define HELLO_GROUP "225.0.0.37"
+#define MSGBUFSIZE 256
+void socketControl::subscribeBroadcast()
 {
- int sockfd;
-	struct addrinfo hints, *servinfo, *p;
-	int rv;
-	int numbytes;
-	struct sockaddr_storage their_addr;
-	char buf[1024];
-	socklen_t addr_len;
-	char s[INET6_ADDRSTRLEN];
+  struct sockaddr_in addr;
+     int fd, nbytes,addrlen;
+     struct ip_mreq mreq;
+     char msgbuf[MSGBUFSIZE];
 
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC; // set to AF_INET to force IPv4
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_flags = AI_PASSIVE; // use my IP
+     u_int yes=1;            /*** MODIFICATION TO ORIGINAL */
 
-	if ((rv = getaddrinfo(NULL, port.c_str(), &hints, &servinfo)) != 0) {
-		//fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-		return ;
-	}
-
-	// loop through all the results and bind to the first we can
-	for(p = servinfo; p != NULL; p = p->ai_next) {
-		if ((sockfd = socket(p->ai_family, p->ai_socktype,
-				p->ai_protocol)) == -1) {
-			perror("listener: socket");
-			continue;
-		}
-
-		if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
-			close(sockfd);
-			perror("listener: bind");
-			continue;
-		}
-		break;
-	}
-
-	if (p == NULL) {
-	//	fprintf(stderr, "listener: failed to bind socket\n");
-	cout << "Failed to bind socket for broadcast" << endl;
-		exit(0);
-	}
-
-	freeaddrinfo(servinfo);
-
-	printf("listener: waiting to recvfrom...\n");
-
-	addr_len = sizeof their_addr;
-	if ((numbytes = recvfrom(sockfd, buf, 1024-1 , 0,
-		(struct sockaddr *)&their_addr, &addr_len)) == -1) {
-		perror("recvfrom");
-		exit(1);
-	}
+     /* create what looks like an ordinary UDP socket */
+     if ((fd=socket(AF_INET,SOCK_DGRAM,0)) < 0) {
+	  perror("socket");
+	  exit(1);
+     }
 
 
-	printf("listener: packet is %d bytes long\n", numbytes);
-	buf[numbytes] = '\0';
-	printf("listener: packet contains \"%s\"\n", buf);
-	close(sockfd);
+/**** MODIFICATION TO ORIGINAL */
+    /* allow multiple sockets to use the same PORT number */
+    if (setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes)) < 0) {
+       perror("Reusing ADDR failed");
+       exit(1);
+       }
+/*** END OF MODIFICATION TO ORIGINAL */
+
+     /* set up destination address */
+     memset(&addr,0,sizeof(addr));
+     addr.sin_family=AF_INET;
+     addr.sin_addr.s_addr=htonl(INADDR_ANY); /* N.B.: differs from sender */
+     addr.sin_port=htons(HELLO_PORT);
+     
+     /* bind to receive address */
+     if (bind(fd,(struct sockaddr *) &addr,sizeof(addr)) < 0) {
+	  perror("bind");
+	  exit(1);
+     }
+     
+     /* use setsockopt() to request that the kernel join a multicast group */
+     mreq.imr_multiaddr.s_addr=inet_addr(HELLO_GROUP);
+     mreq.imr_interface.s_addr=htonl(INADDR_ANY);
+     if (setsockopt(fd,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq)) < 0) {
+	  perror("setsockopt");
+	  exit(1);
+     }
+
+     /* now just enter a read-print loop */
+     while (1) {
+	  addrlen=sizeof(addr);
+	  if ((nbytes=recvfrom(fd,msgbuf,MSGBUFSIZE,0,
+			       (struct sockaddr *) &addr,(socklen_t*)&addrlen)) < 0) {
+	       perror("recvfrom");
+	       exit(1);
+	  }
+	  cout <<msgbuf << endl;
+     }
   	 
 }
-void socketControl::sendBroadcast(string host, string port, string message)
+void socketControl::sendBroadcast(string message)
 {
-    int sockfd;
-    struct addrinfo hints, *servinfo, *p;
-    int rv;
-    int numbytes;
+   struct sockaddr_in addr;
+     int fd, cnt;
+     struct ip_mreq mreq;
 
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_DGRAM;
+     /* create what looks like an ordinary UDP socket */
+     if ((fd=socket(AF_INET,SOCK_DGRAM,0)) < 0) {
+	  perror("socket");
+	  exit(1);
+     }
 
-    if ((rv = getaddrinfo(host.c_str(),port.c_str(), &hints, &servinfo)) != 0) {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-        return;
-    }
-
-    // loop through all the results and make a socket
-    for (p = servinfo; p != NULL; p = p->ai_next) {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype,
-                             p->ai_protocol)) == -1) {
-            perror("talker: socket");
-            continue;
-        }
-
-        break;
-    }
-
-    if (p == NULL) {
-        fprintf(stderr, "talker: failed to bind socket\n");
-        return;
-    }
-
-    if ((numbytes = sendto(sockfd, message.c_str(), strlen(message.c_str()), 0,
-                           p->ai_addr, p->ai_addrlen)) == -1) {
-        perror("talker: sendto");
-        exit(1);
-    }
-
-    freeaddrinfo(servinfo);
-
-    printf("talker: sent %d bytes to %s\n", numbytes, host.c_str());
-    close(sockfd);
+     /* set up destination address */
+     memset(&addr,0,sizeof(addr));
+     addr.sin_family=AF_INET;
+     addr.sin_addr.s_addr=inet_addr(HELLO_GROUP);
+     addr.sin_port=htons(HELLO_PORT);
+     
+     /* now just sendto() our destination! */
+     while (1) {
+	  if (sendto(fd,message.c_str(),strlen(message.c_str()),0,(struct sockaddr *) &addr,
+		     sizeof(addr)) < 0) {
+	       perror("sendto");
+	       exit(1);
+	  }
+	  sleep(1);
+     }
 }
 
 

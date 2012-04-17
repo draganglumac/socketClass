@@ -28,6 +28,7 @@
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <strstream>
 #include <netdb.h> 
 #include <iostream>
@@ -43,8 +44,8 @@ public:
     void startListener(std::string);
     void stopListener(void);
     int transmission(std::string,std::string,std::string);
-    void subscribeBroadcast(std::string);
-    void sendBroadcast(std::string,std::string,std::string);
+    void subscribeBroadcast(void);
+    void sendBroadcast(std::string);
 private:
     int listenfd,sendfd,newsockfd, portno, n;
     struct sockaddr_in serv_addr,cli_addr;
