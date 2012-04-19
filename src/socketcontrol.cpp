@@ -19,6 +19,7 @@
 #include <error.h>
 #include "socketcontrol.h"
 #include <cstdio>
+#include <ifaddrs.h>
 using namespace std;
 socketControl::socketControl()
 {
@@ -211,5 +212,33 @@ void socketControl::sendBroadcast(string message)
 	  sleep(1);
      }
 }
+string socketControl::getPrimaryIp() 
+{
+    struct ifaddrs * ifAddrStruct=NULL;
+    struct ifaddrs * ifa=NULL;
+    void * tmpAddrPtr=NULL;
 
+    getifaddrs(&ifAddrStruct);
+
+    for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next)
+    {
+        if (ifa ->ifa_addr->sa_family==AF_INET)
+	{ // check it is IP4
+            // is a valid IP4 Address
+            tmpAddrPtr=&((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+            char addressBuffer[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+	    
+	    
+	    if(strcmp(ifa->ifa_name,"eth0") == 0)
+	    {
+	      cout << "FOUND PREFERED NETWORK" << endl;
+	     	      
+	      return addressBuffer;
+	    }
+	   
+        }
+    }
+    if (ifAddrStruct!=NULL) freeifaddrs(ifAddrStruct);
+}
 

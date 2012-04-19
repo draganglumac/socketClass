@@ -5,7 +5,8 @@ using namespace std;
 
 void workerOne(socketControl *sc)
 {
-  sc->subscribeBroadcast();
+  sc->getPrimaryIp();
+  sc->sendBroadcast("herpderp");
 }
 int main(int argc, char **argv) {
    

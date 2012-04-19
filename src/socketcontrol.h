@@ -46,6 +46,7 @@ public:
     int transmission(std::string,std::string,std::string);
     void subscribeBroadcast(void);
     void sendBroadcast(std::string);
+    std::string getPrimaryIp(void);
 private:
     int listenfd,sendfd,newsockfd, portno, n;
     struct sockaddr_in serv_addr,cli_addr;
