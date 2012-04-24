@@ -1,19 +1,18 @@
 #include <iostream>
 #include <boost/thread.hpp>
-#include "src/socketcontrol.h"
+#include "src/localcontrol.h"
 using namespace std;
 
-void workerOne(socketControl *sc)
+void workerOne(localcontrol *sc)
 {
-  sc->getPrimaryIp();
-  sc->sendBroadcast("herpderp");
-}
+ cout << sc->getwlanIp() << endl;
+};
 int main(int argc, char **argv) {
    
-    socketControl *sc = new socketControl();
-    boost::thread *worker = new boost::thread(workerOne,sc);
-   
+    localcontrol *l = new localcontrol();
     
+    boost::thread *worker = new boost::thread(workerOne,l);  
+  
     worker->join();
     
     return 0;

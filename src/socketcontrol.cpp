@@ -21,16 +21,16 @@
 #include <cstdio>
 #include <ifaddrs.h>
 using namespace std;
-socketControl::socketControl()
+socketcontrol::socketcontrol()
 {
 
 }
 
-socketControl::~socketControl()
+socketcontrol::~socketcontrol()
 {
 
 }
-int socketControl::transmission(std::string host, std::string port,std::string payload)
+int socketcontrol::transmission(std::string host, std::string port,std::string payload)
 {
   
   portno = atoi(port.c_str());
@@ -73,7 +73,7 @@ int socketControl::transmission(std::string host, std::string port,std::string p
   close(sendfd);
   return 0;
 }
-void socketControl::mainLoop(void )
+void socketcontrol::mainLoop(void )
 {
   while(listening)
   {
@@ -97,7 +97,7 @@ void socketControl::mainLoop(void )
     n = write(newsockfd,buffer,strlen(reply.c_str()));  
   }
 }
-void socketControl::startListener(std::string port )
+void socketcontrol::startListener(std::string port )
 {
    listening = true;
    listenfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -121,14 +121,14 @@ void socketControl::startListener(std::string port )
 
     this->mainLoop();
 }
-void socketControl::stopListener(void )
+void socketcontrol::stopListener(void )
 {
   listening = false;
 }
 #define HELLO_PORT 12345
 #define HELLO_GROUP "225.0.0.37"
 #define MSGBUFSIZE 256
-void socketControl::subscribeBroadcast()
+void socketcontrol::subscribeBroadcast()
 {
   struct sockaddr_in addr;
      int fd, nbytes,addrlen;
@@ -184,7 +184,7 @@ void socketControl::subscribeBroadcast()
      }
   	 
 }
-void socketControl::sendBroadcast(string message)
+void socketcontrol::sendBroadcast(string message)
 {
    struct sockaddr_in addr;
      int fd, cnt;
@@ -212,7 +212,7 @@ void socketControl::sendBroadcast(string message)
 	  sleep(1);
      }
 }
-string socketControl::getPrimaryIp() 
+string socketcontrol::getPrimaryIp(string interface) 
 {
     struct ifaddrs * ifAddrStruct=NULL;
     struct ifaddrs * ifa=NULL;
@@ -230,7 +230,7 @@ string socketControl::getPrimaryIp()
             inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
 	    
 	    
-	    if(strcmp(ifa->ifa_name,"eth0") == 0)
+	    if(strcmp(ifa->ifa_name,interface.c_str()) == 0)
 	    {
 	      cout << "FOUND PREFERED NETWORK" << endl;
 	     	      
@@ -240,5 +240,7 @@ string socketControl::getPrimaryIp()
         }
     }
     if (ifAddrStruct!=NULL) freeifaddrs(ifAddrStruct);
+    
+    return "NOT FOUND";
 }
 

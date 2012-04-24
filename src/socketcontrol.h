@@ -35,18 +35,17 @@
 #include <sstream>
 #include <string>
 
-class socketControl
+class socketcontrol
 {
-
-public:
-    socketControl();
-    virtual ~socketControl();
-    void startListener(std::string);
-    void stopListener(void);
-    int transmission(std::string,std::string,std::string);
-    void subscribeBroadcast(void);
-    void sendBroadcast(std::string);
-    std::string getPrimaryIp(void);
+protected:
+    socketcontrol();
+    virtual ~socketcontrol();
+    virtual void startListener(std::string);
+    virtual void stopListener(void);
+    virtual int transmission(std::string,std::string,std::string);
+    virtual void subscribeBroadcast(void);
+    virtual void sendBroadcast(std::string);
+    virtual std::string getPrimaryIp(std::string);
 private:
     int listenfd,sendfd,newsockfd, portno, n;
     struct sockaddr_in serv_addr,cli_addr;
