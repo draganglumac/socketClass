@@ -45,6 +45,7 @@ protected:
     virtual int transmission(std::string,std::string,std::string);
     virtual void subscribeBroadcast(void);
     virtual void sendBroadcast(std::string);
+    virtual int dataTransmission(std::string,std::string,std::string);
     virtual std::string getPrimaryIp(std::string);
 private:
     int listenfd,sendfd,newsockfd, portno, n;

@@ -20,6 +20,8 @@
 #include "socketcontrol.h"
 #include <cstdio>
 #include <ifaddrs.h>
+#include <iostream>
+#include <fstream>
 using namespace std;
 socketcontrol::socketcontrol()
 {
@@ -29,6 +31,75 @@ socketcontrol::socketcontrol()
 socketcontrol::~socketcontrol()
 {
 
+}
+int socketcontrol::dataTransmission(string host, string port, string path)
+{
+  
+  cout << "Entered transmission..." << endl;
+  
+  std::ifstream _file(path.c_str(),std::ios::in|std::ios::binary|std::ios::ate);
+  
+  if(!_file.is_open())
+  {
+      std::cout << "Could not open " << path << " terminating..." << std::endl;
+      return 1;
+  }
+  //work out how big the binary file is
+   
+  char * payload;
+  long _size = _file.tellg();
+  _file.seekg (0, std::ios::beg);     //position get pointer at the begining of the file
+  payload = new char [_size];     //initialize the buffer
+  _file.read (payload, _size);     //read file to buffer
+  _file.close();     //close file
+  
+  
+  cout << "size of transmission -> " << _size << endl;
+  
+  cout << "host -> " << host << endl;
+  cout << "port -> " << port << endl;
+  
+  int sendfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (sendfd < 0)
+  {
+      cout << "ERROR opening socket" << endl;
+      return 1;
+  }
+  //port
+  int portno = atoi(port.c_str());
+  struct hostent *server = gethostbyname(host.c_str());
+  if (server == NULL) {
+        fprintf(stderr,"ERROR, no such host\n");
+        return 1;
+    }
+  
+  struct sockaddr_in serv_addr;
+  bzero((char *) &serv_addr, sizeof(serv_addr)); //clean it out
+  
+  
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_port = htons(portno);
+  bcopy((char *)server->h_addr,(char *)&serv_addr.sin_addr.s_addr,server->h_length);
+  
+  
+  if (connect(sendfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
+  {
+        cout << "error whilst connecting" << endl;
+        return 1;
+  }
+  
+  int n = write(sendfd,payload,_size);
+    // lets listen for a callback
+    //zero out the buffer
+    if (n < 0)
+    {
+        cout << "ERROR reading from socket" << endl;
+	return 1;
+    }
+  
+  
+    
+  return 0;
 }
 int socketcontrol::transmission(std::string host, std::string port,std::string payload)
 {
