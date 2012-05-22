@@ -12,8 +12,8 @@ int main(int argc, char **argv) {
     localcontrol *l = new localcontrol();
     
     boost::thread *worker = new boost::thread(workerOne,l);  
-  
-    worker->join();
     
+    worker->join();
+    //example done
     return 0;
 }
