@@ -29,10 +29,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <strstream>
+#include <sstream>
 #include <netdb.h> 
 #include <iostream>
-#include <sstream>
 #include <string>
 
 class socketcontrol
