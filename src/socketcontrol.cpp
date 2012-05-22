@@ -16,7 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef __APPLE__
+#include <err.h>
+#else
 #include <error.h>
+#endif
+
 #include "socketcontrol.h"
 #include <cstdio>
 #include <ifaddrs.h>
